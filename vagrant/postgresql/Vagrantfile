@@ -1,0 +1,104 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+psqlversion = "16"
+hostname = "backoffice"
+ubuntuver = "jammy"
+dbname= "backoffice"
+dbpassword="admin"
+timezone ="America/Mexico_City"
+locale="es_MX"
+
+@provisionScript = <<SCRIPT 
+
+base64 -d <<< "V1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1cKV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1cKV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1cKV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV05XV1dXV05OTk5YTk5OTk5XV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1cKV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXTlgweG9sYzo6Ojo6Y2NjOjo6OmNvZGswTldXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1cKV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXWGtvOjs6OmNjY2Nsb29sb29vbGxsY2NjOjo7O2NkT1hXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1cKV1dXV1dXV1dXV1dXV1dXV1dXV1dOS3hjOztjbGxsY2M6OywnLDs7Ojo6Ojo6Y2Nsb29sY2NjOztjeEtXV1dXV1dXV1dXV1dXV1dXV1dXV1cKV1dXV1dXV1dXTldXV1dXV05OTms6LDpsb2xjbDouLixsYycgLjpjJy4uJzssLDs7OmM6O2Nkb29jOyxjMFdXV1dXV1dXV1dXV1dXV1dXV1cKV1dXV1dXV1dOTldXV1dXV1h4OyxjZGwsLi47OmNjOiwsOmxvb2RsJy4uO2xsLCAuOzssLDpjOjpsb286J2NrTldOTldOV1dXV1dXV1dXV1cKV1dXV1dXV1dXV05XTldOazsnbGRsOy4ubGRsY2NvbywgJ29kYzssJycsOiw6Oi4ubGwnIC4uLGNvYzpvZDonOk9OV05XV1dXTldXV1dXV1cKV1dXV1dXV1dXV1dXV0tjLmN4bzo7Jy46azouOywsbzogJ2w6JywsJztjOi4nOy4uY2RjLiAgIC4sY2M6Om9kOydvWFdXTldXV1dXV1dXV1cKV1dXV1dXV1dXV1dXaywsb2Q6Y2Q6Li4nJy4uICAuLi4uJ2w7LG9vLiAgLi47b2wnOzouLjtsYy4gLidjbzo6ZGwuOjBXV1dXV1dXV1dXV1cKV1dXV1dXV1dXV054Jzt4bDpjYzssLC4uICAgLiw7OiwnOzs7OycuLi4nY29vOy4uLi4uJztsOi4uLi4uO2M6O294LCxPV1dXV1dXV1dXV1cKV1dXV1dXV1dXV2suO2tsO29sLCw6Yzo6Li5sT0tYTjBsOiwuLi4uLi4sOzo6Li5sYy4nYzs6Oy4uLC4gLidjbDtveCcsMFdXV1dXV1dXV1cKV1dXV1dXV1dXTywseGw7bDonO2NsbGw7Lm9LT2tPT09LMGQnJ2Nvb2w6LGRkJy47Jy4uOiwuLi4uLiAgLic7bGM7ZGQuOktXV1dXV1dXV1cKV1dXV1dXV1dYOi5kZDtvbCw7bGxsb287J3hvLi4uLic6bG9jLC4uJywnLCwuLic7LC4uJywnLidjOy4gLiw7LGxjO3hvLm9OV1dXV1dXV1cKV1dXV1dXV1drLjprYzpsOyxvb2xvZGwnOjB4Jy4uOzsuLDpvbzouLicuLi4uJ2NvbCwuIC4nJ2NjJy4uICxjLDpkO2xrLCwwV1dXV1dXV1cKV1dXV1dXV05jLmRkO2M6LGNkZGRkbCdsS0tPeGxja0swMFhYMG8nO3hvOywnLi4uLiAgICdjbDouICAgLjtkOixjOjprbC5kV1dXV1dXV1cKV1dXV1dXV0s7J2tsO2wsO2R4ZHhsJ2xYS3hkMFhYTk5OTkswZGMsJycnLiAgIC46LC4gLi4uLjsnLiAgICdkbyw6bDtkZC5jTldXV1dXV1cKV1dXV1dXVzAsO09jO2wsLGRkZGRjJywsOywseFhYTlhLT3hsJzp4bzosLiAuJy46Yy4gLi4uLDsuLi4gLmxkbyw6ZDtveC46WFdXV1dXV1cKV1dXV1dXVzAsO09jO2wsO2RkZHhkbycuJzpkMFhYS0tPZGxvbCcnOzsuIC5ka2MsLiAgLiwnLi4gLi4gLG94byw7bDtkay46WFdXV1dXV1cKV1dXV1dXV1g7J2tsO287LG94ZHhkZDouJywuOmxkeGR4Oy47bzsnY2w7Li4nLi4gLiw6LC4uLi4gICAubGR4bCw6bDtkeC5sTldXV1dXV1cKV1dXV1dXV05sLmRkO29jLGx4eHh4eGwuLG86Li5sbzosJzpjLCwnOzosICAuLiAgLjs7OicuLi4gICxkeHhrYyxvbDp4bC54V1dXV1dXV1cKV1dXV1dXV1drLjprOjtjLDt4eHh4Yyw6ZDBrOyw7Ozo7JzssLCcuLi4gICAnJy4uIC4uLi4uLiAgLmN4eHhkOztsO2xrJyxLV1dXV1dXV1cKV1dXV1dXV1dYYy5kZDtjYzs6eHhkJyxsOjpsOiwsLG9vLi4uLiAgICAgLidjbDsuLiAuLi4gICAgO2R4eGQ6O286O2tjLmROV1dXV1dXV1cKV1dXV1dXV1dXMCwna287ZGwsOmRkOy4uICc7Li4uLi4uICAgLiAgICAuJ29PeGM7Jy4gICAgLi4sb3h4ZDo7Y2M6eGQuY1hXV1dXV1dXV1cKV1dXV1dXV1dOTk8nLGtvO2M6LDp4ZDonLi4gICAgICAgICAgIC4uLi4sbzBYa2w6LC4uICAubGR4a2tkOjtjYzpkZC47S1dOV1dXV1dXV1cKV1dXV1dXV1dXV05PLCdkZDs6bDo7bHh4ZG9sOmNjOy4gIC4uLicnLDtja05Ya2RsOycuICAuO29kb2M7Y286OnhvLjpLV1dXV1dXV1dXV1cKV1dXV1dXV1dXTldXMDsnb3g6Y286Oztjb29kZG9sOy4gLic7Ojo6Y2NvT05OMGRsOicuICAgIC4nLDtjYzpseGMubFhXV1dXV1dXV1dXV1cKV1dXV1dXV1dXTldOV1hvJztvbzo7YzosLCwnJy4nOywuLjpveG9sbGxvMFdOMHhsOycuLi4gLi47b2M7Y2RvLCx4TldXV1dXV1dXV1dXV1cKV1dXV1dXV1dXV05OV1dXMGMnOm9vYzpjbDsnJyw6Oy4gLjtkT2tkZGR4S1dOMGRsOiwuLicsOmNjY29vbywsb0tXTk5XTldXV1dXV1dXV1cKV1dXV1dXV1dXV1dXV1dXV05PYyw7b29vYzpjb2xjOy4uLidsazBPT08wWE5La29sbGM6OmM6OmNvb2w7LG9LV1dXV1dXV1dXV1dXV1dXV1cKV1dXV1dXV1dXV1dXV1dXV1dXTktkOyxjbG9vb2M6bGxjOmNsb2RkZGRkZGRvbGxjbGM6Y29kb2w6LDp4WFdXV1dXV1dXV1dXV1dXV1dXV1cKV1dXV1dXV1dXV1dXV1dXV1dXV1dXWE9vOjs6Y2xsb2Rvb2xsY2NjY2NjY2xsb29vb2xjbGM7O2N4S05XV1dXV1dXV1dXV1dXV1dXV1dXV1cKV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXTktrb2M6Y2M6Y2xsY2NjY2NjbGxsY2M6Ojs6Y2RPWE5OV1dXTldXV1dXV1dXV1dXV1dXV1dXV1cKV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dOWE9rZG9sY2NjOmNjY2xsb3hPMFhOV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1cKV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1cKV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1cKV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1cK"
+echo "                        AINEAS CONSULTING (c) 2024 "
+
+timedatectl set-timezone #{timezone}
+timedatectl set-ntp on
+sudo locale-gen #{locale}
+sudo locale-gen #{locale}.UTF-8
+
+echo "                           "
+echo " | | ._   _  ._ _.  _|  _  "
+echo " |_| |_) (_| | (_| (_| (/_ "
+echo "     |   _|                "
+echo "                           "
+echo "                           "
+echo " |  | |\\ | | | \\/          "
+echo " |_ | | \\| |_| /\\          "
+echo " "
+base64 -d <<< "ICAgICAgICAgX25ubm5fICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgIGRHR0dHTU1iICAgICAsIiIiIiIiIiIiIiIiIiIuCiAgICAgICBAcH5xcH5+cU1iICAgIHwgTGludXggUnVsZXMhIHwKICAgICAgIE18QHx8QCkgTXwgICBfOy4uLi4uLi4uLi4uLi4uJwogICAgICAgQCwtLS0tLkpNfCAtJwogICAgICBKU15cX18vICBxS0wKICAgICBkWlAgICAgICAgIHFLUmIKICAgIGRaUCAgICAgICAgICBxS0tiCiAgIGZaUCAgICAgICAgICAgIFNNTWIKICAgSFpNICAgICAgICAgICAgTU1NTQogICBGcU0gICAgICAgICAgICBNTU1NCiBfX3wgIi4gICAgICAgIHxcZFMicU1MCiB8ICAgIGAuICAgICAgIHwgYCcgXFpxCl8pICAgICAgXC5fX18uLHwgICAgIC4nClxfX19fICAgKU1NTU1NTXwgICAuJwogICAgIGAtJyAgICAgICBgLS0nIGhqbQo="
+
+apt-get update --yes --force-yes
+DEBIAN_FRONTEND=noninteractive apt-get upgrade --yes --force-yes
+sudo DEBIAN_FRONTEND=noninteractive apt --yes install unzip xmlstarlet
+
+hostnamectl set-hostname '#{hostname}'
+
+echo " ___                    "
+echo "  |  ._   _ _|_  _. | | "
+echo " _|_ | | _>  |_ (_| | | "
+echo "                        "
+echo "  _                       __  _     "
+echo " |_) _   _ _|_  _  ._ _  (_  / \\ |  "
+echo " |  (_) _>  |_ (_| | (/_ __) \\_X |_ "
+echo "                _|                  "
+base64 -d <<<"QXJ0IGJ5IEpvYW4gRy4gU3RhcmsKICAgICAgICAgICAgICAgICAgICAgICAgICAgIF8KICAgICAgICAgICAgICAgICAgICAgICAgICAuJyBgJy5fXwogICAgICAgICAgICAgICAgICAgICAgICAgLyAgICAgIFwgYCciLSwKICAgICAgICAuLScnJyctLS4uLl9fLi4tLyAuICAgICB8ICAgICAgXAogICAgICAuJyAgICAgICAgICAgICAgIDsgOicgICAgICcuICBhICAgfAogICAgIC8gICAgICAgICAgICAgICAgIHwgOi4gICAgICAgXCAgICAgPVwKICAgIDsgICAgICAgICAgICAgICAgICAgXCc6LiAgICAgIC8gICwtLl9fOy4tO2AKICAgL3wgICAgIC4gICAgICAgICAgICAgICctLS5fICAgLy0uN2AuXy4uLTtgCiAgOyB8ICAgICAgICcgICAgICAgICAgICAgICAgfGAtJyAgICAgIFwgID18CiAgfC9cICAgICAgICAuICAgLScgLyAgICAgLyAgOyAgICAgICAgIHwgID0vCiAgKCggOy4gICAgICAgLF8gIC46fCAgICAgfCAvICAgICAvXCAgIHwgPXwKICAgKSAvIGBcICAgICB8IGAiImA7ICAgICAvIHwgICAgfCAvICAgLyA9LwogICAgIHwgOjp8ICAgIHwgICAgICBcICAgIFwgXCAgICBcIGAtLScgPS8KICAgIC8gICcvXCAgICAvICAgICAgICkgICAgfC8gICAgIGAtLi4uLWAKICAgLyAgICB8IHwgIGBcICAgIC8tJyAgICAvOwogICBcICAsLC8gfCAgICBcICAgRCAgICAuJyAgXApqZ3MgYCIiYCAgIFwgIG5uaCAgRF8uLSdMX19ubmgKICAgICAgICAgICAgYCIiImAK"
+
+apt install --yes --force-yes curl ca-certificates gnupg postgresql-common
+echo -ne '\n' | sudo sh /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh #{ubuntuver} -v #{psqlversion}
+sudo DEBIAN_FRONTEND=noninteractive apt install --yes postgis postgresql-#{psqlversion}-postgis-3
+sudo pg_ctlcluster #{psqlversion} main start
+sudo -u postgres createuser -w #{dbname}
+sudo -u postgres -i psql -c "CREATE DATABASE \"#{dbname}\" WITH OWNER \"#{dbname}\" ENCODING 'UTF-8' LC_COLLATE = 'es_MX.UTF-8' LC_CTYPE = 'es_MX.UTF-8' TEMPLATE template0;"
+sudo -u postgres -i psql -c "ALTER USER #{dbname} WITH PASSWORD '#{dbpassword}';"
+sudo -u postgres -i psql -c "GRANT ALL ON DATABASE #{dbname} TO #{dbname};"
+sudo sed -i "s/#listen_addresses = 'localhost'/listen_addresses = '*'/1"  /etc/postgresql/#{psqlversion}/main/postgresql.conf
+sudo sed -i '$ a\host   #{dbname}      #{dbname}      127.0.0.1/32            password' /etc/postgresql/#{psqlversion}/main/pg_hba.conf
+sudo sed -i "s|host    all             all             127.0.0.1/32            scram-sha-256|#host    all             all             127.0.0.1/32            scram-sha-256|" /etc/postgresql/#{psqlversion}/main/pg_hba.conf
+sudo sed -i "s|host    all             all             ::1/128                 scram-sha-256|#host    all             all             ::1/128                 scram-sha-256|" /etc/postgresql/#{psqlversion}/main/pg_hba.conf
+sudo mkdir -p /etc/ssl/certs/postgresql/
+sudo mkdir -p /etc/ssl/private/postgresql/
+cd /etc/ssl/certs/postgresql/
+sudo openssl req -new -newkey rsa:4096 -x509 -days 2121 -nodes -text -out server.crt -keyout server.key -subj "/CN=backoffice"
+echo "*************************************************************************"
+sudo ls -la /etc/ssl/certs/postgresql/ 
+echo "*************************************************************************"
+sudo cp /etc/ssl/certs/postgresql/server.key /etc/ssl/private/postgresql/
+sudo chown -R root:ssl-cert /etc/ssl/private/postgresql
+sudo chmod og-rwx,g+r  /etc/ssl/private/postgresql/server.key
+sudo sed -i "s|ssl_cert_file = '/etc/ssl/certs/ssl-cert-snakeoil.pem'|ssl_cert_file = '/etc/ssl/certs/postgresql/server.crt'|" /etc/postgresql/#{psqlversion}/main/postgresql.conf
+sudo sed -i "s#ssl_key_file = '/etc/ssl/private/ssl-cert-snakeoil.key'#ssl_key_file = '/etc/ssl/private/postgresql/server.key'#" /etc/postgresql/#{psqlversion}/main/postgresql.conf
+sudo sed -i "s|#ssl_min_protocol_version = 'TLSv1.2'|ssl_min_protocol_version = 'TLSv1.3'|" /etc/postgresql/#{psqlversion}/main/postgresql.conf
+cd ~ 
+sudo pg_ctlcluster #{psqlversion} main restart
+echo -e "\n\n\n"
+echo " ___                    "
+echo "  |  ._   _ _|_  _. | | "
+echo " _|_ | | _>  |_ (_| | | "
+echo "                        "
+ echo "   |  _.     _.         "
+echo " \\_| (_| \\/ (_|         "
+echo "                        "
+base64 -d <<< "ICAgICAgICAgICAgICAgICAgICAgIC4KICAgICAgICAgICAgICAgICAgICAgICAgYDouCiAgICAgICAgICAgICAgICAgICAgICAgICAgYDouCiAgICAgICAgICAgICAgICAgIC46JyAgICAgLDo6CiAgICAgICAgICAgICAgICAgLjonICAgICAgOzonCiAgICAgICAgICAgICAgICAgOjogICAgICA7OicKICAgICAgICAgICAgICAgICAgOiAgICAuOicKICAgICAgICAgICAgICAgICAgIGAuICA6LgogICAgICAgICAgX19fX19fX19fX19fX19fX19fX19fX19fXwogICAgICAgICA6IF8gXyBfIF8gXyBfIF8gXyBfIF8gXyBfIDoKICAgICAsLS0tOiIuIi4iLiIuIi4iLiIuIi4iLiIuIi4iLiI6CiAgICA6ICwnImA6Oi46LjouOi46LjouOi46LjouOi46Ljo6JwogICAgYC5gLiAgYDotPT09LT09PS09PT0tPT09LT09PS06JwogICAgICBgLmAtLl86ICAgICAgICAgICAgICAgICAgIDoKICAgICAgICBgLS5fX2AuICAgICAgICAgICAgICAgLCcgbWV0LgogICAgLC0tLS0tLS0tYCJgLS0tLS0tLS0tLS0tLSctLS0tLS0tLS4KICAgICBgIi0tLl9fICAgICAgICAgICAgICAgICAgIF9fLi0tIicKICAgICAgICAgICAgYCIiLS0tLS0tLS0tLS0tLSIiJwo="
+echo -e "\n\n\n"
+DEBIAN_FRONTEND=noninteractive sudo apt --yes install openjdk-17-jdk openjdk-17-jre
+javac -version
+sudo keytool -cacerts -alias postgresql -import -file /etc/ssl/certs/postgresql/server.crt -storepass changeit -noprompt
+ufw allow 8080/tcp
+ufw allow 5432/tcp
+base64 -d <<< "G1szODs1OzQ2bSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgLjp4eDouICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgLnhXV3guICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGxYWG8gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDtrazsgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDpPTzogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgIC4sLC4gICAgICAgICAgICAgICAgICAgICAgIDtvbzsgICAgICAgICAgICAgICAgICAgICAgIC4sLC4gICAgICAgICAgIAogICAgICAgICAgICdrWE86ICAgICAgICAgICAgICAgLi4uLDssLDs6OiwnLCcuJy4gICAgICAgICAgICAgICAgOk9YaycgICAgICAgICAgIAogICAgICAgICAgICAuOmswby4gICAgICAgICAuJycnJywsJy4uLiAuLi4uLi4uJzsnJzsnLi4gICAgICAgIC5kMGs6LiAgICAgICAgICAgIAogICAgICAgICAgICAgICAnbGQ6LiAgICAuOzo7Li4gICAnLCwsLCcuICAgICAgICAgIC4uJ2MsLi4gICAuO29sJyAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICdkZC4uLDosLiAgICAgIC5rTldXV05rbCcgICAgICAgIC4uLi4sOzsuLi4uLi4gICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAuJzpjLC4gICAgICAgICA7S01NTU1XV0tsOycnJycuLi4uLi4uICAuLDsuICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAnYzsuICAgICAgICAgIC4na1dNTU1NTU1XeCcuICAgICAgICAgICAgLiw6LCAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICw6LiAgICAgICAgLjpsb29vb2tOTU1NTU1NWGwuICAgICAgICAgICAgICAnYzsuICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAuOzsuICAgICAuOmRrT2tsLC4gIC54V01NTU1NTU5vLiAgICAgICAgICAgICAgLmNsLiAgICAgICAgICAgICAgIAogICAgICAgICAgICAgIC47OyAgICAgO3hLV0tvJy47bDouICAnT01NTU1NTU1OZC4gICAgICAgICAgICAgIC4sOy4gICAgICAgICAgICAgIAogICAgICAgICAgICAgICxjLiAgICBsWE1NWDogIC54Tks6ICAgO0tNTU1NTU1NV2suICAgICAgICAgICAgICAubDsgICAgICAgICAgICAgIAogICAgICAgICAgICAgLjonICAgICAsZDBYS28sLiAuLC4gICAgIGNYTU1NTU1NTVdPLCAgICAgICAgICAgICAgO28uICAgICAgICAgICAgIAogICAgICAgICAgICAgLGwuICAgICAgIC4uJywsJy4uICAgICAgIC5sS05NTU1NTU1XMDsgICAgICAgICAgICAgLmMnICAgICAgICAgICAgIAogLi4uLi4gICAgLiAgOmMuICAgICAgICAgICAgICAgICAgICAgICAuLHhXTU1NTU1NTUs6ICAgICAgICAgICAgLmM6ICAuICAgIC4uLi4uIAoueEtLMHhvY2NseDsuOjsgICAgICAgICAgICAgICAgICAgICAgICAgIC5rV01NTk8wV01YYy4gICAgICAgICAgIDs7Ljt4bGNsb3gwS0t4LgogLiwsJy4uLiAuLi4gOzsgICAgICAgICAgICAgICAgICAgICAgICAgICAneEtLeCcubzBLaycgICAgICAgICAgLjs7IC4uLi4uLi4nLCwuIBtbMG0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAuLiAgICAuLi4gICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgIBtbNDRtU0VDUkVUQVLDjUEgREUgTUFSSU5BIEFSTUFEQSBERSBNw4lYSUNPG1swbQogICAgICAgICAgICAgICAgIEFFUk9QVUVSVE8gSU5URVJOQUNJT05BTCBERSBMQSBDSVVEQUQgREUgTcOJWElDTwogICAgICAgICAgICAgICAgR0VSRU5DSUEgREUgSURFTlRJRklDQUNJw5NOIEFFUk9QT1JUVUFSSUEgKGMpIDIwMjQKG1szODs1OzE5Nm1BQ0NFREVSIFNJTiBBVVRPUklaQUNJw5NOIEEgRVNURSBTSVNURU1BIEVTIFVOIERFTElUTyBGRURFUkFMIFNFR8OaTiBMT1MgQVJULiAKMjExIEJJUyAxIFkgMiBERUwgQ8OTRElHTyBQRU5BTCBGRURFUkFMIFkgU0UgQ0FTVElHQSBDT04gSEFTVEEgNCBBw5FPUyBERSBQUklTScOTThtbMG0K" > /etc/motd
+
+SCRIPT
+
+Vagrant.configure("2") do |config|
+   config.vm.box = "ubuntu/#{ubuntuver}64"
+   config.vm.network "forwarded_port", guest: 5432, host: 5432, host_ip: "127.0.0.1"
+        config.vm.provider "virtualbox" do |v|
+        v.memory = 1024
+        v.cpus = 2
+    end
+    config.vm.boot_timeout=1500
+   config.vm.provision 'shell', inline: @provisionScript
+end
