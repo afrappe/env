@@ -1,0 +1,78 @@
+FROM ubuntu:22.04
+
+# Environment variables
+ENV DB_NAME="docker" \
+    DB_USER="docker" \
+    DB_PASSWORD="p4wn3d!" \
+    DB_ENCODING="UTF-8" \
+    DB_LOCALE="es_MX.UTF-8" \
+    SO_LOCALE="es_MX" \
+    SO_LOCALE_UTF8="es_MX.UTF-8" \
+    SO_HOSTNAME="postgis" \
+    SO_TIMEZONE="America/Mexico_City" \
+    POSTGRES_VERSION="16"
+
+# Copy entrypoint script
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh && \
+    sed -i -e 's/\r$//' /usr/local/bin/docker-entrypoint.sh
+
+# System configuration
+RUN echo "APT::Install-Suggests \"0\";" >> /etc/apt/apt.conf.d/00-docker && \
+    echo "APT::Install-Recommends \"0\";" >> /etc/apt/apt.conf.d/00-docker && \
+    ln -fs /usr/share/zoneinfo/${SO_TIMEZONE} /etc/localtime && \
+    apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    locales \
+    unzip \
+    curl \
+    ca-certificates \
+    gnupg \
+    postgresql-common \
+    openssl \
+    gosu && \
+    locale-gen ${SO_LOCALE} && \
+    locale-gen ${SO_LOCALE_UTF8} && \
+    curl https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor > /etc/apt/trusted.gpg.d/apt.postgresql.org.gpg && \
+    echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list && \
+    echo -ne '\n' | sh /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh $(lsb_release -cs) -v ${POSTGRES_VERSION} && \
+    apt-get update && \
+    apt-get install -y \
+        postgis \
+        postgresql-${POSTGRES_VERSION}-postgis-3 \
+        postgresql-${POSTGRES_VERSION}-pgrouting \
+        osm2pgrouting
+
+# PostgreSQL setup
+RUN pg_ctlcluster 16 main start && \
+    gosu postgres createuser -w ${DB_USER} && \
+    gosu postgres psql -c "CREATE DATABASE \"${DB_USER}\" WITH OWNER \"${DB_NAME}\" ENCODING '${DB_ENCODING}' LC_COLLATE = '${DB_LOCALE}' LC_CTYPE = '${DB_LOCALE}' TEMPLATE template0;" && \
+    gosu postgres psql -c "ALTER USER ${DB_USER} WITH PASSWORD '${DB_PASSWORD}';" && \
+    gosu postgres psql -c "GRANT ALL ON DATABASE ${DB_NAME} TO ${DB_USER};" && \
+    gosu postgres psql -d ${DB_NAME}  -c "CREATE EXTENSION postgis;"
+
+# Configure PostgreSQL
+RUN sed -i "s/#listen_addresses = 'localhost'/listen_addresses = '*'/" /etc/postgresql/${POSTGRES_VERSION}/main/postgresql.conf && \
+    echo "host ${DB_NAME} ${DB_USER} 127.0.0.1/32 password" >> /etc/postgresql/${POSTGRES_VERSION}/main/pg_hba.conf
+
+# SSL setup
+RUN mkdir -p /etc/ssl/certs/postgresql/ /etc/ssl/private/postgresql/ && \
+    openssl req -new -newkey rsa:4096 -x509 -days 2121 -nodes -text \
+    -out /etc/ssl/certs/postgresql/server.crt \
+    -keyout /etc/ssl/private/postgresql/server.key \
+    -subj "/CN=${SO_HOSTNAME}" && \
+    chown -R postgres:postgres /etc/ssl/certs/postgresql /etc/ssl/private/postgresql && \
+    chmod 600 /etc/ssl/private/postgresql/server.key && \
+    sed -i "s|ssl_cert_file.*|ssl_cert_file = '/etc/ssl/certs/postgresql/server.crt'|" /etc/postgresql/${POSTGRES_VERSION}/main/postgresql.conf && \
+    sed -i "s|ssl_key_file.*|ssl_key_file = '/etc/ssl/private/postgresql/server.key'|" /etc/postgresql/${POSTGRES_VERSION}/main/postgresql.conf && \
+    sed -i "s|#ssl_min_protocol_version.*|ssl_min_protocol_version = 'TLSv1.3'|" /etc/postgresql/${POSTGRES_VERSION}/main/postgresql.conf
+
+# Cleanup
+RUN apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+EXPOSE 5432
+WORKDIR /var/lib/postgresql
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+CMD ["postgres"]
+
